@@ -44,17 +44,10 @@ class BattleNetConnection(object):
         if isinstance(parameters, dict):
             parameters.update({"access_token": self.access_token, "locale": self.locale})
             formatted_parameters = urllib.parse.urlencode(parameters)
+            return self
+        raise TypeError("Invalid parameters passed. Should be dict.")
 
-        else:
-            raise TypeError("Invalid parameters passed. Should be dict.")
-
-        url = BASE_URL.format(
-            region=self.region,
-            game=self.game,
-            endpoint=endpoint,
-            endpoint_arguments=endpoint_arguments,
-            parameters=formatted_parameters,
-        )
+        url = BASE_URL.format(region=self.region, game=self.game, endpoint=endpoint, endpoint_arguments=endpoint_arguments, parameters=formatted_parameters,)
         LOG.debug("URL: {}".format(url))
         return url
 
@@ -63,10 +56,7 @@ class BattleNetConnection(object):
         LOG.debug("Fetching")
         response = self.session.request(method, url)
         LOG.debug(f"Response {response.status_code}")
-
-        if not 199 < response.status_code < 300:
-            raise BattleNetError(response.json())
-
+        if (199 < response.status_code < 300) is False: raise BattleNetError(response.json())
         return response.json()
 
     def client(self, *args, **kwargs):
