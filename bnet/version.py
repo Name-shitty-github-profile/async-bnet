@@ -1,2 +1,1 @@
-def get_version():
-    return '0.2'
+get_version = lambda : '0.2'
