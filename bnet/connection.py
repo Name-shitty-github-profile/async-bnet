@@ -4,8 +4,8 @@ import urllib
 
 import requests
 
-from bnet.client import BattleNetClient
-from bnet.exceptions import BattleNetError
+from .client import BattleNetClient
+from .exceptions import BattleNetError
 
 LOG = logging.getLogger("battle.net")
 
@@ -15,7 +15,7 @@ BASE_URL = "https://{region}.api.blizzard.com/{game}/{endpoint}/{endpoint_argume
 
 
 class BattleNetConnection(object):
-    def __init__(self, access_token="", locale="en_GB", region="eu", game="wow"):
+    def __init__(self, access_token = None, locale = "en_GB", region = "eu", game = "wow"):
         """
         Connection class for Battle.net API client.
 
@@ -24,19 +24,17 @@ class BattleNetConnection(object):
         :param str locale:
         :param str region:
         """
-        access_token = access_token or os.environ.get("BATTLE_NET_ACCESS_TOKEN", "")
-
-        if not access_token:
-            LOG.critical("No Battle.net API key provided")
-            raise ValueError(
-                "Set BATTLE_NET_ACCESS_TOKEN env variable or pass access_token as a parameter"
-            )
+        if access_token is None:
+            try:
+                access_token = os.environ["BATTLE_NET_ACCESS_TOKEN"]
+            except KeyError:
+                LOG.critical("No Battle.net API key provided")
+                raise ValueError("Set BATTLE_NET_ACCESS_TOKEN env variable or pass access_token as a parameter")
 
         self.access_token = access_token
         self.locale = locale
         self.game = game
         self.region = region
-
         self.session = requests.Session()
 
     def _build_url(self, parameters, endpoint, endpoint_arguments, **kwargs):
